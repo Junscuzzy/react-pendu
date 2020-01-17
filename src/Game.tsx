@@ -1,9 +1,10 @@
-import React, { useState } from 'react'
+import React, { useReducer } from 'react'
 import { Button, Typography, makeStyles } from '@material-ui/core'
 
 import theme from './theme'
 import { letters } from './data.json'
 import { computeDisplay, normalizeString, countUnderscore } from './utils'
+import EndOfGameModal from './EndOfGameModal'
 
 const useStyles = makeStyles({
     keyboard: {
@@ -22,49 +23,75 @@ const useStyles = makeStyles({
     },
 })
 
-// Todo : Rendre les lettres clickée différenciées ?
-const Game = ({ word: originalWord }: { word: string }) => {
+interface GameProps {
+    word: string
+    onEndGame: (win: boolean) => void
+}
+
+interface GameState {
+    usedLetters: string[]
+    failCount: number
+}
+
+type Action = {
+    type: 'SET_FAIL' | 'ADD_LETTER'
+    letter?: string
+}
+
+const Game = ({ word: originalWord, onEndGame }: GameProps) => {
     const classes = useStyles()
     const word = normalizeString(originalWord)
-    const possibleCharts = ['-', ' ', "'"]
+    const initialState: GameState = {
+        usedLetters: ['-', ' ', "'"],
+        failCount: 0,
+    }
+    const [states, dispatch] = useReducer(
+        (state: GameState, action: Action) => {
+            switch (action.type) {
+                case 'SET_FAIL':
+                    return { ...state, failCount: state.failCount + 1 }
+                case 'ADD_LETTER':
+                    return action.letter
+                        ? {
+                              ...state,
+                              usedLetters: [
+                                  ...state.usedLetters,
+                                  action.letter,
+                              ],
+                          }
+                        : state
 
-    // Todo: il y a 2 "useState" => Refactor to reducer
-    const [usedLetters, setLetter] = useState(possibleCharts)
-    const [tryCount, setTry] = useState(0)
-    const hiddenWord = computeDisplay(word, usedLetters)
-    const restCount = countUnderscore(hiddenWord)
+                default:
+                    return state
+            }
+        },
+        initialState,
+    )
+
+    const hiddenWord = computeDisplay(word, states.usedLetters)
+    const hiddenLettersCount = countUnderscore(hiddenWord)
+    const endOfGame = states.failCount >= 10
+    const win = hiddenLettersCount === 0 && !endOfGame
 
     function handleClick(letter: string): void {
-        setTry(tryCount + 1)
-        if (letter.length === 1 && !usedLetters.includes(letter)) {
-            setLetter([...usedLetters, letter])
+        dispatch({ type: 'ADD_LETTER', letter })
+
+        if (!word.split('').includes(letter)) {
+            dispatch({ type: 'SET_FAIL' })
         }
     }
 
-    // Game logic (Can try 10 times)
-    // Todo : ouvrir un popup pour jouer une nouvelle partie
-    // Todo : Sur session cookie, compter le nombre de victoires consécutives
-    // Todo : Ajouter le SearchLien dans le message de reponse
-    if (restCount === 0) {
-        alert('You win!')
+    const endOfGameProps = {
+        win,
+        word: originalWord,
+        onClose: () => onEndGame(win),
     }
-    // ? Ajuster si la taille du mot est longue (déjà qu'ils sont dur)
-    if (tryCount > 9) {
-        alert('You loose')
-    }
-
-    // Todo : Transformer ça en stats de jeux
-    console.log({
-        originalWord,
-        word,
-        usedLetters,
-        hiddenWord,
-        restCount,
-        tryCount,
-    })
 
     return (
         <>
+            {endOfGame && <EndOfGameModal {...endOfGameProps} />}
+            {win && <EndOfGameModal {...endOfGameProps} />}
+
             <div className={classes.keyboard}>
                 {letters.map(letter => (
                     <Button
@@ -72,6 +99,7 @@ const Game = ({ word: originalWord }: { word: string }) => {
                         variant="outlined"
                         color="primary"
                         size="small"
+                        disabled={states.usedLetters.includes(letter)}
                         onClick={(): void => handleClick(letter)}
                         className={classes.keyTouch}
                     >

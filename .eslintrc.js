@@ -16,7 +16,11 @@ module.exports = {
     },
     "rules": {
         "react/prop-types": "off",
-        "semi": ["error", "never"]
+        "semi": ["error", "never"],
+        "@typescript-eslint/explicit-function-return-type": [
+            "off",  
+            { "extensions": [".tsx"] }
+        ],
     },
     "settings": {
         "react": {

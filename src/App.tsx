@@ -4,11 +4,9 @@
  * @link Inspiration => http://jeudupendu.fr/
  * @link Wikipédia => https://www.wikiwand.com/fr/Le_Pendu_(jeu)
  * @link Cours OC => https://openclassrooms.com/fr/courses/4664381-realisez-une-application-web-avec-react-js/6734471-entrainez-vous-en-creant-un-jeu-du-pendu
- *
- * Todo : Commencer par relire l'énoncé :)
  */
 
-import React from 'react'
+import React, { useReducer } from 'react'
 import { ThemeProvider } from '@material-ui/core/styles'
 import {
     Container,
@@ -22,7 +20,6 @@ import theme from './theme'
 import { words } from './data.json'
 import { getRandomWord } from './utils'
 import Game from './Game'
-// import SearchLink from './SearchLink'
 
 const useStyles = makeStyles({
     container: {
@@ -37,14 +34,48 @@ const useStyles = makeStyles({
     },
 })
 
+interface State {
+    word: string
+    wordsHistory: string[]
+}
+interface Action {
+    type: 'RESET'
+    word?: string
+}
+
+// ? Counting consecutive wins ?
 const App: React.FC = () => {
     const classes = useStyles()
     const title = 'Le jeu du pendu'
+    const initialState: State = {
+        word: getRandomWord(words),
+        wordsHistory: [],
+    }
+    const [states, dispatch] = useReducer((state: State, action: Action) => {
+        switch (action.type) {
+            case 'RESET':
+                return action.word
+                    ? {
+                          ...state,
+                          word: action.word,
+                          wordsHistory: [...state.wordsHistory, action.word],
+                      }
+                    : state
+            default:
+                return state
+        }
+    }, initialState)
 
-    // Todo : Transform en reducer pour ajouter
-    // Todo 1) OnGameEnd => trouver un nouveau mot
-    // Todo 2) Compter les victoires consécutives
-    const word = getRandomWord(words)
+    // Arrow func for bind
+    const restart = (): void => {
+        const inHistory = states.wordsHistory.includes(states.word)
+        let newWord: string = states.word
+
+        while (newWord === states.word || inHistory) {
+            newWord = getRandomWord(words)
+        }
+        dispatch({ type: 'RESET', word: newWord })
+    }
 
     return (
         <ThemeProvider theme={theme}>
@@ -55,7 +86,7 @@ const App: React.FC = () => {
                         {title}
                     </Typography>
 
-                    <Game word={word} />
+                    <Game word={states.word} onEndGame={restart} />
                 </Paper>
             </Container>
         </ThemeProvider>

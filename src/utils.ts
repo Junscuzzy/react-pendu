@@ -17,3 +17,7 @@ export function normalizeString(str: string): string {
 export function getRandomWord(array: any[]): string {
     return array[Math.floor(Math.random() * array.length)]
 }
+
+export function getSearchURL(word: string): string {
+    return `https://www.google.com/search?q=${word}`
+}
