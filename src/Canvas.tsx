@@ -3,6 +3,15 @@
  */
 
 import React, { useRef, useEffect } from 'react'
+import { makeStyles } from '@material-ui/core'
+
+const useStyles = makeStyles(theme => ({
+    canvas: {
+        marginTop: theme.spacing(4),
+        padding: theme.spacing(4),
+        background: 'white',
+    },
+}))
 
 interface CanvasProps {
     scale?: number
@@ -10,70 +19,72 @@ interface CanvasProps {
 }
 
 export default function Canvas({ scale = 1, failCount = 10 }: CanvasProps) {
+    const classes = useStyles()
     const ref: any = useRef()
 
     const ratio = (value: number): number => value * scale
     const width = ratio(300)
     const height = ratio(400)
 
-    function draw(step: number, context: any): void {
+    function draw(step: number, ctx: any): void {
+        ctx.lineWidth = 4
         switch (step) {
             case 0:
-                context.moveTo(0, ratio(400))
-                context.lineTo(ratio(200), ratio(400))
-                context.stroke()
+                ctx.moveTo(0, ratio(400))
+                ctx.lineTo(ratio(200), ratio(400))
+                ctx.stroke()
                 break
             case 1:
-                context.moveTo(ratio(100), 0)
-                context.lineTo(ratio(100), ratio(400))
-                context.stroke()
+                ctx.moveTo(ratio(100), 0)
+                ctx.lineTo(ratio(100), ratio(400))
+                ctx.stroke()
                 break
             case 2:
-                context.moveTo(ratio(100), 0)
-                context.lineTo(ratio(200), 0)
-                context.stroke()
+                ctx.moveTo(ratio(100), 0)
+                ctx.lineTo(ratio(200), 0)
+                ctx.stroke()
                 break
             case 3:
-                context.moveTo(ratio(200), 0)
-                context.lineTo(ratio(200), ratio(60))
-                context.stroke()
+                ctx.moveTo(ratio(200), 0)
+                ctx.lineTo(ratio(200), ratio(60))
+                ctx.stroke()
                 break
             case 4:
-                context.beginPath()
-                context.arc(ratio(200), ratio(90), ratio(30), 0, 2 * Math.PI)
-                context.stroke()
+                ctx.beginPath()
+                ctx.arc(ratio(200), ratio(90), ratio(30), 0, 2 * Math.PI)
+                ctx.stroke()
                 break
             case 5:
-                context.moveTo(ratio(200), ratio(120))
-                context.lineTo(ratio(200), ratio(250))
-                context.stroke()
+                ctx.moveTo(ratio(200), ratio(120))
+                ctx.lineTo(ratio(200), ratio(250))
+                ctx.stroke()
                 break
             case 6:
-                context.moveTo(ratio(200), ratio(150))
-                context.lineTo(ratio(250), ratio(200))
-                context.stroke()
+                ctx.moveTo(ratio(200), ratio(150))
+                ctx.lineTo(ratio(250), ratio(200))
+                ctx.stroke()
                 break
             case 7:
-                context.moveTo(ratio(200), ratio(150))
-                context.lineTo(ratio(150), ratio(200))
-                context.stroke()
+                ctx.moveTo(ratio(200), ratio(150))
+                ctx.lineTo(ratio(150), ratio(200))
+                ctx.stroke()
                 break
             case 8:
-                context.moveTo(ratio(200), ratio(250))
-                context.lineTo(ratio(250), ratio(300))
-                context.stroke()
+                ctx.moveTo(ratio(200), ratio(250))
+                ctx.lineTo(ratio(250), ratio(300))
+                ctx.stroke()
                 break
             case 9:
-                context.moveTo(ratio(200), ratio(250))
-                context.lineTo(ratio(150), ratio(300))
-                context.stroke()
+                ctx.moveTo(ratio(200), ratio(250))
+                ctx.lineTo(ratio(150), ratio(300))
+                ctx.stroke()
                 break
         }
     }
 
     useEffect(() => {
         const canvas = ref.current
-        const context = canvas.getContext('2d')
+        const ctx = canvas.getContext('2d')
 
         // screen ratio
         const dpi = window.devicePixelRatio
@@ -87,8 +98,12 @@ export default function Canvas({ scale = 1, failCount = 10 }: CanvasProps) {
         for (let i = 0; i < failCount; i++) {
             steps.push(i)
         }
-        steps.map((i: number) => draw(i, context))
+        steps.map((i: number) => draw(i, ctx))
     })
 
-    return <canvas ref={ref} style={{ width, height }} />
+    return (
+        <div className={classes.canvas}>
+            <canvas ref={ref} style={{ width, height }} />
+        </div>
+    )
 }

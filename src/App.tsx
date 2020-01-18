@@ -80,12 +80,12 @@ const App: React.FC = () => {
                         Le jeu du pendu
                     </Typography>
                     <Typography>
-                        Essaye de trouver le mot caché.
+                        Essayez de trouver le mot caché.
                         <br />
                         {`Vous avez le droit à
                         10 erreurs avant que le jeu ne s'arrête.`}
                         <br />
-                        <b>Actuce</b> : Tu peux aussi utiliser ton clavier.
+                        <b>Actuce</b> : Vous pouvez aussi utiliser le clavier.
                         <br />
                         Bonne chance !
                     </Typography>

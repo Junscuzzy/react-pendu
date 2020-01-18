@@ -19,5 +19,5 @@ export function getRandomItem(array: any[]): string {
 }
 
 export function getSearchURL(word: string): string {
-    return `https://www.google.com/search?q=${word}`
+    return `https://www.google.com/search?q="${word}"+définition`
 }

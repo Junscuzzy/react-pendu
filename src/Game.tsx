@@ -7,11 +7,6 @@ import Keyboard from './Keyboard'
 import Canvas from './Canvas'
 
 const useStyles = makeStyles(theme => ({
-    canvas: {
-        marginTop: theme.spacing(4),
-        padding: theme.spacing(4),
-        border: `2px white solid`,
-    },
     word: {
         letterSpacing: '0.25em',
         textTransform: 'uppercase',
@@ -88,9 +83,7 @@ const Game = ({ word: originalWord, onEndGame }: GameProps) => {
             {endOfGame && <EndOfGameModal {...endOfGameProps} />}
             {win && <EndOfGameModal {...endOfGameProps} />}
 
-            <div className={classes.canvas}>
-                <Canvas scale={0.6} failCount={failCount} />
-            </div>
+            <Canvas scale={0.6} failCount={10 || failCount} />
 
             <Keyboard
                 usedLetters={usedLetters}
