@@ -85,6 +85,8 @@ const App: React.FC = () => {
                         {`Vous avez le droit à
                         10 erreurs avant que le jeu ne s'arrête.`}
                         <br />
+                        <b>Actuce</b> : Tu peux aussi utiliser ton clavier.
+                        <br />
                         Bonne chance !
                     </Typography>
 
