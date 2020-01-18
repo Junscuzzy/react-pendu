@@ -1,22 +1,11 @@
 import React, { useReducer } from 'react'
-import { Button, Typography, makeStyles } from '@material-ui/core'
+import { Typography, makeStyles } from '@material-ui/core'
 
-import { letters } from './data.json'
 import { computeDisplay, normalizeString, countUnderscore } from './utils'
 import EndOfGameModal from './EndOfGameModal'
+import Keyboard from './Keyboard'
 
 const useStyles = makeStyles(theme => ({
-    keyboard: {
-        display: 'flex',
-        justifyContent: 'center',
-        flexWrap: 'wrap',
-        marginTop: theme.spacing(4),
-        marginBottom: theme.spacing(2),
-        maxWidth: '960px',
-    },
-    keyTouch: {
-        margin: theme.spacing(0.5),
-    },
     word: {
         letterSpacing: '0.25em',
         textTransform: 'uppercase',
@@ -93,21 +82,10 @@ const Game = ({ word: originalWord, onEndGame }: GameProps) => {
             {endOfGame && <EndOfGameModal {...endOfGameProps} />}
             {win && <EndOfGameModal {...endOfGameProps} />}
 
-            <div className={classes.keyboard}>
-                {letters.map(letter => (
-                    <Button
-                        key={letter}
-                        variant="outlined"
-                        color="primary"
-                        size="small"
-                        disabled={usedLetters.includes(letter)}
-                        onClick={(): void => handleClick(letter)}
-                        className={classes.keyTouch}
-                    >
-                        {letter}
-                    </Button>
-                ))}
-            </div>
+            <Keyboard
+                usedLetters={usedLetters}
+                onSelectLetter={letter => handleClick(letter)}
+            />
 
             <Typography variant="h4" className={classes.word} gutterBottom>
                 {hiddenWord}
