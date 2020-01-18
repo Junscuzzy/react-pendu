@@ -1,18 +1,18 @@
 import React, { useReducer } from 'react'
 import { Button, Typography, makeStyles } from '@material-ui/core'
 
-import theme from './theme'
 import { letters } from './data.json'
 import { computeDisplay, normalizeString, countUnderscore } from './utils'
 import EndOfGameModal from './EndOfGameModal'
 
-const useStyles = makeStyles({
+const useStyles = makeStyles(theme => ({
     keyboard: {
         display: 'flex',
         justifyContent: 'center',
         flexWrap: 'wrap',
         marginTop: theme.spacing(4),
         marginBottom: theme.spacing(2),
+        maxWidth: '960px',
     },
     keyTouch: {
         margin: theme.spacing(0.5),
@@ -21,7 +21,7 @@ const useStyles = makeStyles({
         letterSpacing: '0.25em',
         textTransform: 'uppercase',
     },
-})
+}))
 
 interface GameProps {
     word: string
@@ -34,7 +34,7 @@ interface GameState {
 }
 
 type Action = {
-    type: 'SET_FAIL' | 'ADD_LETTER'
+    type: 'SET_FAIL' | 'ADD_LETTER' | 'RESET'
     letter?: string
 }
 
@@ -45,7 +45,7 @@ const Game = ({ word: originalWord, onEndGame }: GameProps) => {
         usedLetters: ['-', ' ', "'"],
         failCount: 0,
     }
-    const [states, dispatch] = useReducer(
+    const [{ usedLetters, failCount }, dispatch] = useReducer(
         (state: GameState, action: Action) => {
             switch (action.type) {
                 case 'SET_FAIL':
@@ -60,7 +60,8 @@ const Game = ({ word: originalWord, onEndGame }: GameProps) => {
                               ],
                           }
                         : state
-
+                case 'RESET':
+                    return initialState
                 default:
                     return state
             }
@@ -68,10 +69,9 @@ const Game = ({ word: originalWord, onEndGame }: GameProps) => {
         initialState,
     )
 
-    const hiddenWord = computeDisplay(word, states.usedLetters)
-    const hiddenLettersCount = countUnderscore(hiddenWord)
-    const endOfGame = states.failCount >= 10
-    const win = hiddenLettersCount === 0 && !endOfGame
+    const hiddenWord = computeDisplay(word, usedLetters)
+    const endOfGame = failCount >= 10
+    const win = countUnderscore(hiddenWord) === 0 && !endOfGame
 
     function handleClick(letter: string): void {
         dispatch({ type: 'ADD_LETTER', letter })
@@ -81,11 +81,12 @@ const Game = ({ word: originalWord, onEndGame }: GameProps) => {
         }
     }
 
-    const endOfGameProps = {
-        win,
-        word: originalWord,
-        onClose: () => onEndGame(win),
+    const onClose = (): void => {
+        dispatch({ type: 'RESET' })
+        onEndGame(win)
     }
+
+    const endOfGameProps = { win, word: originalWord, onClose }
 
     return (
         <>
@@ -99,7 +100,7 @@ const Game = ({ word: originalWord, onEndGame }: GameProps) => {
                         variant="outlined"
                         color="primary"
                         size="small"
-                        disabled={states.usedLetters.includes(letter)}
+                        disabled={usedLetters.includes(letter)}
                         onClick={(): void => handleClick(letter)}
                         className={classes.keyTouch}
                     >
@@ -108,9 +109,11 @@ const Game = ({ word: originalWord, onEndGame }: GameProps) => {
                 ))}
             </div>
 
-            <Typography variant="h4" className={classes.word}>
+            <Typography variant="h4" className={classes.word} gutterBottom>
                 {hiddenWord}
             </Typography>
+
+            <Typography>{`Erreurs: ${failCount} (/10)`}</Typography>
         </>
     )
 }

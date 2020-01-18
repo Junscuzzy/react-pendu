@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
-
 import Button from '@material-ui/core/Button'
+import Container from '@material-ui/core/Container'
 import Link from '@material-ui/core/Link'
 import Dialog from '@material-ui/core/Dialog'
 import DialogActions from '@material-ui/core/DialogActions'
@@ -19,41 +19,57 @@ interface ModalProps {
 
 function EndOfGameModal({ win, word, onClose, isOpen = true }: ModalProps) {
     const [open, setOpen] = useState(isOpen)
-    const searchUrl = getSearchURL(word)
 
     const handleClose = (): void => {
         setOpen(false)
+    }
+    const handleExited = (): void => {
         onClose()
     }
 
     return (
-        <Dialog
-            open={open}
-            onClose={handleClose}
-            aria-labelledby="alert-dialog-title"
-            aria-describedby="alert-dialog-description"
-        >
-            <DialogTitle id="alert-dialog-title">
-                {win ? 'Bravo ! Vous avez gagné' : 'Game Over :('}
-            </DialogTitle>
-            <DialogContent>
-                <DialogContentText
-                    id="alert-dialog-description"
-                    color="primary"
-                >
-                    Le mot était <b>{word}</b>. (Vous ne connaissez pas ce mot ?{' '}
-                    <Link href={searchUrl} target="_blank">
+        <Container maxWidth="md">
+            <Dialog
+                open={open}
+                onClose={handleClose}
+                onExited={handleExited}
+                fullWidth
+                maxWidth={'sm'}
+                aria-labelledby="alert-dialog-title"
+                aria-describedby="alert-dialog-description"
+            >
+                <DialogTitle id="alert-dialog-title">
+                    {win ? 'Bravo ! Vous avez gagné' : 'Game Over :('}
+                </DialogTitle>
+                <DialogContent>
+                    <DialogContentText
+                        id="alert-dialog-description"
+                        color="primary"
+                    >
+                        Le mot était {win && 'bien '}
+                        <b>{word}</b>.
+                    </DialogContentText>
+                </DialogContent>
+
+                <DialogActions>
+                    <Link
+                        href={getSearchURL(word)}
+                        target="_blank"
+                        style={{ marginRight: '.5em' }}
+                    >
                         Voir la définition
                     </Link>
-                    )
-                </DialogContentText>
-            </DialogContent>
-            <DialogActions>
-                <Button onClick={handleClose} color="primary" autoFocus>
-                    Réessayer
-                </Button>
-            </DialogActions>
-        </Dialog>
+                    <Button
+                        onClick={handleClose}
+                        color="primary"
+                        variant="contained"
+                        autoFocus
+                    >
+                        {win ? 'Re-jouer' : 'Réessayer'}
+                    </Button>
+                </DialogActions>
+            </Dialog>
+        </Container>
     )
 }
 

@@ -8,17 +8,14 @@
 
 import React, { useReducer } from 'react'
 import { ThemeProvider } from '@material-ui/core/styles'
-import {
-    Container,
-    Paper,
-    Typography,
-    CssBaseline,
-    makeStyles,
-} from '@material-ui/core'
+import Container from '@material-ui/core/Container'
+import Paper from '@material-ui/core/Paper'
+import Typography from '@material-ui/core/Typography'
+import { CssBaseline, makeStyles } from '@material-ui/core'
 
 import theme from './theme'
 import { words } from './data.json'
-import { getRandomWord } from './utils'
+import { getRandomItem } from './utils'
 import Game from './Game'
 
 const useStyles = makeStyles({
@@ -26,7 +23,7 @@ const useStyles = makeStyles({
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
-        height: '100vh',
+        minHeight: '100vh',
         textAlign: 'center',
     },
     paper: {
@@ -40,39 +37,36 @@ interface State {
 }
 interface Action {
     type: 'RESET'
-    word?: string
+    word: string
 }
 
-// ? Counting consecutive wins ?
 const App: React.FC = () => {
     const classes = useStyles()
-    const title = 'Le jeu du pendu'
     const initialState: State = {
-        word: getRandomWord(words),
+        word: getRandomItem(words),
         wordsHistory: [],
     }
-    const [states, dispatch] = useReducer((state: State, action: Action) => {
-        switch (action.type) {
-            case 'RESET':
-                return action.word
-                    ? {
-                          ...state,
-                          word: action.word,
-                          wordsHistory: [...state.wordsHistory, action.word],
-                      }
-                    : state
-            default:
-                return state
-        }
-    }, initialState)
+    const [{ word, wordsHistory }, dispatch] = useReducer(
+        (state: State, action: Action) => {
+            switch (action.type) {
+                case 'RESET':
+                    return {
+                        ...state,
+                        word: action.word,
+                        wordsHistory: [...state.wordsHistory, action.word],
+                    }
+                default:
+                    return state
+            }
+        },
+        initialState,
+    )
 
     // Arrow func for bind
     const restart = (): void => {
-        const inHistory = states.wordsHistory.includes(states.word)
-        let newWord: string = states.word
-
-        while (newWord === states.word || inHistory) {
-            newWord = getRandomWord(words)
+        let newWord: string = word
+        while (newWord === word || wordsHistory.includes(newWord)) {
+            newWord = getRandomItem(words)
         }
         dispatch({ type: 'RESET', word: newWord })
     }
@@ -82,11 +76,19 @@ const App: React.FC = () => {
             <Container className={classes.container}>
                 <CssBaseline />
                 <Paper className={classes.paper}>
-                    <Typography component="h1" variant="h2">
-                        {title}
+                    <Typography component="h1" variant="h2" gutterBottom>
+                        Le jeu du pendu
+                    </Typography>
+                    <Typography>
+                        Essaye de trouver le mot caché.
+                        <br />
+                        {`Vous avez le droit à
+                        10 erreurs avant que le jeu ne s'arrête.`}
+                        <br />
+                        Bonne chance !
                     </Typography>
 
-                    <Game word={states.word} onEndGame={restart} />
+                    <Game word={word} onEndGame={restart} />
                 </Paper>
             </Container>
         </ThemeProvider>

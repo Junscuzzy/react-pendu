@@ -14,7 +14,7 @@ export function normalizeString(str: string): string {
     return output.toLowerCase()
 }
 
-export function getRandomWord(array: any[]): string {
+export function getRandomItem(array: any[]): string {
     return array[Math.floor(Math.random() * array.length)]
 }
 
